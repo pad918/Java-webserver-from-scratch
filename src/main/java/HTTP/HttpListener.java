@@ -20,7 +20,7 @@ public class HttpListener extends Thread {
 
 	@Override
 	public void run() {
-		HttpResponce.init();
+		//HttpResponce.init();
 		try {
 			binary_in = new BufferedInputStream(socket.getInputStream());
 			ascii_in = new BufferedReader(new InputStreamReader(binary_in));
@@ -33,7 +33,9 @@ public class HttpListener extends Thread {
 		while (true){
 			try {
 				waitForHttpRequest();
-				HttpResponce.respond(out, request);
+				HttpResponce responce = HttpResponceFactory.getGetResponce(request);
+				responce.send(out);
+				//HttpResponce.respond(out, request);
 			}
 			catch (Exception e){
 				e.printStackTrace();

@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class HttpResponce {
 	static final String folderRootPath =
@@ -14,7 +15,12 @@ public class HttpResponce {
 	private static HashMap<String, String> urlFilePair;
 	private static HashMap<String, String> fileExtensionContentType; // load from file?
 
-	public static void init(){
+	private int responceCode = 200;
+	private LinkedHashMap<String, String> headers;
+	private Resource resource;
+	private byte[] data;
+
+	static{
 		fileExtensionContentType = new HashMap<String, String>();
 		urlFilePair = new HashMap<String, String>();
 		fileExtensionContentType.put("png", "image/png");
@@ -29,93 +35,59 @@ public class HttpResponce {
 		urlFilePair.put("/favicon.ico", "insek.png");
 	}
 
-	public static void respond(DataOutputStream out, HttpRequest request) throws IOException {
-		String url = request.getUrl();
-		String fileName = urlFilePair.get(url);
-		if(fileName==null)
-			fileName = url.replaceAll("/", "");
-		String filePath = folderRootPath + fileName;
-		if(filePath==null){
-			sendNotFoundResponce(out);
-		}
-		//Return file
-		sendRequestedFile(out, filePath);
+	public HttpResponce(){
+		headers = new LinkedHashMap<String, String>();
 	}
 
-	private static void sendNotFoundResponce(DataOutputStream out) throws IOException {
-		out.writeBytes("HTTP/1.1 404 Not Found\r\n\r\n");
+	private void sendErrorCode(DataOutputStream out) throws IOException {
+		//Should add code name
+		String errorMessage = "HTTP/1.1 " + responceCode + "\r\n\r\n";
+		out.writeBytes(errorMessage);
+		out.flush();
 	}
 
-	private static void sendRequestedFile(DataOutputStream out, String filePath)
-			throws IOException {
-		System.out.println("Sending requested file");
-		try {
-			StringBuilder responceBuilder = new StringBuilder("HTTP/1.1 200 OK\r\n");
-			responceBuilder.append("Content-Type: " + getContentType(filePath) + "\r\n");
-			responceBuilder.append("Connection: close\r\n");
-			//Load file
-
-			FileReader file = new FileReader(filePath);
-			responceBuilder.append("Content-Length: " + file.getSize() + "\r\n");
-			//End header
-			responceBuilder.append("\r\n");
-			out.writeBytes(responceBuilder.toString());
-
-			//Write attached file
-			BufferedInputStream fileStream = file.getInputStream();
-			int readBytes = 0;
-			byte[] fileBytes = new byte[1024];
-			while (fileStream.available()>0) {
-				int len = fileStream.read(fileBytes);
-				if(len>0)
-					readBytes+=len;
-				if(len>0)
-					out.write(fileBytes, 0, len);
-			}
-			System.out.println("Total read: " + readBytes + "B");
-			file.close();
-			out.flush();
-		}
-		catch (FileNotFoundException e){
-			e.printStackTrace();
-			sendNotFoundResponce(out);
-		}
+	public void addHeader(String key, String value){
+		headers.put(key, value);
 	}
 
-	private static String getContentType(String fileName){
-		String[] extensionSplit = fileName.split("\\.");
-		if(extensionSplit.length<2)
-			throw new IllegalArgumentException("File name invalid");
-		String type = fileExtensionContentType.get(extensionSplit[extensionSplit.length-1]);
-		System.out.println("File content type: " + type);
-		return type!=null?type:"example";
+	public void setHttpCode(int code) {
+		responceCode = code;
+	}
+
+	public void setResource(Resource resource){
+		this.resource = resource;
+	}
+
+	private void writeResourceToOut(DataOutputStream out) throws IOException {
+		byte[] buff = new byte[1024];
+		BufferedInputStream fileStream = resource.getFile().getInputStream();
+		int readLen = 0;
+		while (readLen>=0) {
+			out.write(buff, 0, readLen);
+			readLen = fileStream.read(buff);
+		}
 	}
 
 	void send(DataOutputStream out) throws IOException {
-		//throw new ExecutionControl.NotImplementedException("DO NOT USE");
-		/*StringBuilder responceBuilder = new StringBuilder("HTTP/1.1 200 OK\r\n");
-		responceBuilder.append("Content-Type: text/html\r\n");
-		responceBuilder.append("Connection: close\r\n");
-		String html_test =
-				"""
-						<!DOCTYPE html>
-						<html>
-						  <head>
-						    <title>HTML FIL FRAN JAVA SERVERN</title>
-						    <meta charset="UTF-8">
-						  </head>
-						  <body>
-						    <h1>DET HÄR ÄR EN EXEMPELSIDA</h1>
-						    <p><a href="http://www.example.org/">www.example.org</a></p>
-						  </body>
-						</html>
-				""";
-		responceBuilder.append("Content-Length: " + html_test.length() + "\r\n");
+		//Test if erronous code:
+		if(responceCode>=400) {
+			sendErrorCode(out);
+			return;
+		}
+
+		StringBuilder responceBuilder = new StringBuilder("HTTP/1.1 ");
+		responceBuilder.append(String.valueOf(responceCode) + "\r\n");
+		var headerSet = headers.entrySet();
+		for(var headerPair : headerSet){
+			responceBuilder.append(headerPair.getKey() + ": " + headerPair.getValue() + "\r\n");
+		}
 		responceBuilder.append("\r\n");
-		responceBuilder.append(html_test);
 		out.writeBytes(responceBuilder.toString());
+
+		if(resource!=null) {
+			writeResourceToOut(out);
+		}
 		out.flush();
-		 */
 	}
 
 }
