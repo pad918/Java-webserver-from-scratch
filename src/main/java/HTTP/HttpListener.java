@@ -2,10 +2,10 @@ package HTTP;
 import java.net.*;
 import java.io.*;
 import java.text.ParseException;
-import java.util.Random;
 
 
 public class HttpListener extends Thread {
+	private final HttpServer server;
 	private Socket socket;
 	private DataOutputStream out;
 	private BufferedReader ascii_in;
@@ -13,9 +13,10 @@ public class HttpListener extends Thread {
 	private boolean keepAlive = false;
 	private HttpRequest request;
 
-	HttpListener(Socket accepted_socket){
+	HttpListener(Socket accepted_socket, HttpServer server){
 		System.out.println("Creating new thread");
 		socket = accepted_socket;
+		this.server = server;
 	}
 
 	@Override
@@ -33,9 +34,8 @@ public class HttpListener extends Thread {
 		while (true){
 			try {
 				waitForHttpRequest();
-				HttpResponce responce = HttpResponceFactory.getGetResponce(request);
-				responce.send(out);
-				//HttpResponce.respond(out, request);
+				HttpResponse response = server.getResponse(request);
+				response.send(out);
 			}
 			catch (Exception e){
 				e.printStackTrace();
@@ -56,7 +56,8 @@ public class HttpListener extends Thread {
 
 	private void waitForHttpRequest() throws IOException, ParseException {
 		request = new HttpRequest();
-		request.waitForRequest(ascii_in);
+		request.readHttpHeader(binary_in);
+		//request.readHttpData(binary_in);
 		String conType = request.getHeaderValue("Connection");
 		keepAlive = conType.equals("keep-alive"); // Borde göras bättre
 

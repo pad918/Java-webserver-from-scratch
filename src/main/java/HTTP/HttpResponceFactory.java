@@ -2,9 +2,15 @@ package HTTP;
 
 import java.io.FileNotFoundException;
 
+/*
+* Replaced by HttpServer.getResponse.
+*	Remove in the future
+*
+* */
+
 public class HttpResponceFactory {
-	public static HttpResponce getGetResponce(HttpRequest request){
-		HttpResponce responce = new HttpResponce();
+	public static HttpResponse getGetResponce(HttpRequest request){
+		HttpResponse responce = new HttpResponse();
 		// Always force close, fix this later
 		responce.addHeader("Connection", "close");
 
@@ -23,7 +29,7 @@ public class HttpResponceFactory {
 				responce.addHeader("Content-Type", type);
 		}
 		catch (FileNotFoundException e){
-			e.printStackTrace(); // Att ta bort
+			//e.printStackTrace(); // Att ta bort
 			responce.setHttpCode(404);
 		}
 

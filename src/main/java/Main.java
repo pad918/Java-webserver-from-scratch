@@ -8,7 +8,7 @@ import java.math.BigInteger;
 public class Main {
 	static Server s;
 	public static void main(String[] args) {
-		HTTP.HttpServer server = new HTTP.HttpServer();
+		HTTP.HttpServer server = new HTTP.CloudHttpServer();
 		server.startServer(80);
 		/*
 		//System.out.println("Byte = "+Helper.byteToBinary((byte)-127));

@@ -1,7 +1,7 @@
 package HTTP;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.LinkedHashMap;
 
@@ -11,6 +11,7 @@ public class HttpRequest {
 	HttpReqestType type;
 	String requestedURL;
 	String httpVersion;
+	byte[] data;
 
 	public HttpRequest(){
 		headers = new LinkedHashMap<String, String>();
@@ -37,10 +38,27 @@ public class HttpRequest {
 		}
 	}
 
-	public void waitForRequest(BufferedReader in) throws IOException, ParseException {
+	private String readLine(BufferedInputStream in) throws IOException {
+		StringBuilder builder = new StringBuilder();
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		int b = 0;
+		while (true){
+			b = in.read();
+			if((char)b == '\r') {
+				in.read(); //remove \n
+				break;
+			}
+			builder.append((char)b);
+		}
+
+		return builder.toString();
+	}
+
+	public void readHttpHeader(BufferedInputStream in) throws IOException, ParseException {
 		System.out.println("Waiting for request...");
 
-		String requestLine = in.readLine();
+		//OBS!!! långsam som sata antagligen
+		String requestLine = readLine(in);
 		System.out.println(requestLine);
 
 		//handle status line
@@ -48,10 +66,31 @@ public class HttpRequest {
 
 		String line = ".";
 		while (!line.equals("")){
-			line = in.readLine();
+			line = readLine(in);
 			parseHeaderLine(line);
 			System.out.println(line);
 		}
+		readHttpData(in);
+	}
+
+	public void readHttpData(BufferedInputStream in) throws IOException {
+		// Read data of line
+		int len = 0;
+		long limit = 0;
+		byte[] buff = new byte[1024];
+		ByteArrayOutputStream byteBuf = new ByteArrayOutputStream();
+		String len_str = getHeaderValue("Content-Length");
+		try{
+			limit = Long.parseLong(len_str);
+		}
+		catch (Exception e){
+			limit = 0;
+		}
+		System.out.println("Available: " + in.available()+"B");
+		while(byteBuf.size() < limit && (len = in.read(buff))>=0){
+			byteBuf.write(buff, 0, len);
+		}
+		data = byteBuf.toByteArray();
 	}
 
 	public String getHeaderValue(String key){
@@ -61,5 +100,12 @@ public class HttpRequest {
 
 	public String getUrl(){
 		return requestedURL;
+	}
+
+	public HttpReqestType getType(){
+		return type;
+	}
+	public byte[] getData() {
+		return data;
 	}
 }

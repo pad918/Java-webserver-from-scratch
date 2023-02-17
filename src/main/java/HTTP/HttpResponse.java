@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
-public class HttpResponce {
+public class HttpResponse {
 	static final String folderRootPath =
 			"C:/Users/Måns/Documents/programmering/java/WebSocketServerTest/src/main/java/resources/";
 	private static HashMap<String, String> urlFilePair;
@@ -35,7 +35,7 @@ public class HttpResponce {
 		urlFilePair.put("/favicon.ico", "insek.png");
 	}
 
-	public HttpResponce(){
+	public HttpResponse(){
 		headers = new LinkedHashMap<String, String>();
 	}
 
