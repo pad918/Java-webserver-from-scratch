@@ -1,14 +1,20 @@
+import testing.Database;
+
+import javax.xml.crypto.Data;
 import java.math.BigInteger;
 
 /* Skriven kod:
 2023-01-29: 274 lines
+2023-02-17: 465 lines
 
  */
 
 public class Main {
 	static Server s;
+
 	public static void main(String[] args) {
 		HTTP.HttpServer server = new HTTP.CloudHttpServer();
+		Database.init();
 		server.startServer(80);
 		/*
 		//System.out.println("Byte = "+Helper.byteToBinary((byte)-127));

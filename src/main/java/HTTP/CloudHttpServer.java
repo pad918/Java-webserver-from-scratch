@@ -36,6 +36,11 @@ public class CloudHttpServer extends HttpServer{
 			resource = new Resource(URL);
 			response.setResource(resource);
 
+			// Kolla på kakan eller skapa kaka om den inte finns
+			Authentication auth = new Authentication(request);
+			if(!auth.isAuthenticated())
+				auth.createNewAuthId(response);
+
 			//Add resource specific headers (flytta till metod i responce?)
 			response.addHeader("Content-Length", Long.toString(resource.getFile().getSize()));
 			String type = resource.getHTTPResourceTypeDescription();
