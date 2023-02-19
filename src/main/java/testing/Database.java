@@ -60,9 +60,9 @@ public class Database {
 		conn.close();
 	}
 
-	public ResultSet run(String SQL) throws SQLException {
+	public ResultSet run(String SQL_code) throws SQLException {
 		Statement stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery("SELECT * FROM test");
+		ResultSet rs = stmt.executeQuery(SQL_code);
 		return rs;
 	}
 
