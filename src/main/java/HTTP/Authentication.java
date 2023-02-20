@@ -19,7 +19,7 @@ public class Authentication {
 		System.out.println("Creating random auth id...");
 
 		// Create new auth id for the user (in DB)
-		authId = createRandomId(24);
+		authId = createRandomId(32);
 		response.addHeader("Set-Cookie", "auth=" + authId);
 	}
 

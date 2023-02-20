@@ -1,6 +1,6 @@
 package HTTP;
 
-import resources.CallableMetods;
+import HTTP.CallableMethods;
 
 import java.io.FileNotFoundException;
 
@@ -16,7 +16,7 @@ public class CloudHttpServer extends HttpServer{
 
 	//Should be able to access the database
 	private HttpResponse getPostResponse(HttpRequest request){
-		CallableMetods.auth(request);
+		CallableMethods.auth(request);
 		request.requestedURL = "/index.html";
 		HttpResponse response = getGetResponse(request);
 
@@ -40,6 +40,10 @@ public class CloudHttpServer extends HttpServer{
 			Authentication auth = new Authentication(request);
 			if(!auth.isAuthenticated())
 				auth.createNewAuthId(response);
+
+			// Run script if needed...
+			// 		Scripts can modify the database and the responce
+			//		Scripts can access the request (which containes the post data)
 
 			//Add resource specific headers (flytta till metod i responce?)
 			response.addHeader("Content-Length", Long.toString(resource.getFile().getSize()));

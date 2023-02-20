@@ -1,4 +1,5 @@
-import testing.Database;
+import HTTP.CallableMethods;
+import database.Database;
 
 import javax.xml.crypto.Data;
 import java.math.BigInteger;
@@ -15,6 +16,7 @@ public class Main {
 	public static void main(String[] args) {
 		HTTP.HttpServer server = new HTTP.CloudHttpServer();
 		Database.init();
+		CallableMethods.init();
 		server.startServer(80);
 		/*
 		//System.out.println("Byte = "+Helper.byteToBinary((byte)-127));
