@@ -17,9 +17,13 @@ public class CloudHttpServer extends HttpServer{
 	//Should be able to access the database
 	private HttpResponse getPostResponse(HttpRequest request){
 		CallableMethods.auth(request);
-		request.requestedURL = "/index.html";
+		//request.requestedURL = "/index.html";
 		HttpResponse response = getGetResponse(request);
-
+		// Run script if needed...
+		// 		Scripts can modify the database and the responce
+		//		Scripts can access the request (which containes the post data)
+		System.out.println("URL: " + request.requestedURL);
+		CallableMethods.try_run(request.requestedURL, request, response);
 
 		return response;
 	}
@@ -41,9 +45,8 @@ public class CloudHttpServer extends HttpServer{
 			if(!auth.isAuthenticated())
 				auth.createNewAuthId(response);
 
-			// Run script if needed...
-			// 		Scripts can modify the database and the responce
-			//		Scripts can access the request (which containes the post data)
+
+
 
 			//Add resource specific headers (flytta till metod i responce?)
 			response.addHeader("Content-Length", Long.toString(resource.getFile().getSize()));
