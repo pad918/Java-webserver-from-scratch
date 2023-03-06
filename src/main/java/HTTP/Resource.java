@@ -12,6 +12,10 @@ import java.util.HashMap;
 
 public class Resource {
 
+	// VARNING! Detta är inte ett säkert sätt att hantera det på.
+	// Alla filer som är tillgängliga för alla borde istället finnas i en
+	// hashtabell, som man kan söka i. Då kan ingen någonsin
+	// få tillågn till filer som inte finns i hashtabellen.
 	private static final String folderRootPath =
 			"C:/Users/Måns/Documents/programmering/java/WebSocketServerTest/src/main/java/resources/";
 

@@ -5,6 +5,36 @@ import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.Properties;
 
+/*
+* 	Hur ska user filer sparas?
+* 		Lösnig 1:
+*		filerna sparas i databasen, detta gör det möjligt
+* 		att enklare säga vem / vilka som har tillgång till en
+* 		specifik fil. Blir dock jobbigt med folders o.s.v.
+*
+* 		Lösning 2:
+* 		En folder skapas för varje användare. Alla filer i foldern
+* 		tillhör användaren.
+* 		+ Enklare
+* 		- Ett extra system utanför databasen att hålla koll på.
+*
+* 		Lösning 3:
+* 		En folder för varje användare, med filer som tillhör användaren.
+* 		Databasen har koll på filerna
+*
+*
+* 		HUR LÖSA:
+* 		När man går in på main page inloggad hämtar den en lista över alla filer man sökt på
+* 		(eller sorterat efter) CSV. De skriv ut i en lista med namn, datum preview o.s.v.
+* 		När man trycker på en bild läses den in i full storlek.
+* 		Varje användare har därmed en map /user/imgs typ där alla bilder finns
+* 		och en /user/prev med previews till varje bild med samma namn som bilden.
+* 		En förfrågan kan då se ut som
+* 		GET /img?img=3333&preview=true
+*
+* */
+
+
 public class Database {
 	private static Database instance;
 
