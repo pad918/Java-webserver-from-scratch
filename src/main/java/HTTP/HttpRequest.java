@@ -1,20 +1,24 @@
 package HTTP;
 
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.text.ParseException;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class HttpRequest {
 	public enum HttpReqestType{GET, POST, TRACE, HEAD, PUT, DELETE, OPTIONS, CONNECT}
 	LinkedHashMap<String, String> headers;
+	LinkedHashMap<String, String> parameters;
 	HttpReqestType type;
 	String requestedURL;
+	String requestedURI;
 	String httpVersion;
 	byte[] data;
 
-	public HttpRequest(){
+	public HttpRequest(BufferedInputStream in) throws IOException, ParseException {
 		headers = new LinkedHashMap<String, String>();
+		parameters = new LinkedHashMap<String, String>();
+		readHttpRequest(in);
 	}
 
 	private void parseRequestLine(String statusLine) throws ParseException {
@@ -24,6 +28,13 @@ public class HttpRequest {
 		try {
 			type = HttpReqestType.valueOf(triplet[0]);
 			requestedURL = triplet[1];
+
+			String[] parts = requestedURL.split("\\?");
+			if(parts.length==2)
+				requestedURI = parts[0];
+			else
+				requestedURI = requestedURL;
+
 			httpVersion = triplet[2];
 		}
 		catch (Exception e){
@@ -54,7 +65,21 @@ public class HttpRequest {
 		return builder.toString();
 	}
 
-	public void readHttpHeader(BufferedInputStream in) throws IOException, ParseException {
+	private void parseQueryParameters(String url){
+		String[] url_parts = url.split("\\?");
+		if(url_parts.length!=2)
+			return;
+
+		String query= url_parts[1];
+		String[] parameterPairs = query.split("&");
+		for (String pair : parameterPairs){
+			String[] parts = pair.split("=");
+			if(parts.length==2)
+				parameters.put(parts[0], parts[1]);
+		}
+	}
+
+	public void readHttpRequest(BufferedInputStream in) throws IOException, ParseException {
 		System.out.println("Waiting for request...");
 
 		//OBS!!! långsam som sata antagligen
@@ -63,6 +88,8 @@ public class HttpRequest {
 
 		//handle status line
 		parseRequestLine(requestLine);
+
+		parseQueryParameters(requestedURL);
 
 		String line = ".";
 		while (!line.equals("")){
@@ -98,8 +125,17 @@ public class HttpRequest {
 		return ret!=null?ret:"";
 	}
 
-	public String getUrl(){
-		return requestedURL;
+	public String getParameterValue(String key){
+		String ret = parameters.get(key);
+		return ret!=null?ret:"";
+	}
+
+	public Set<String> getParameterKeySet(){
+		return parameters.keySet();
+	}
+
+	public String getURI(){
+		return requestedURI;
 	}
 
 	public HttpReqestType getType(){

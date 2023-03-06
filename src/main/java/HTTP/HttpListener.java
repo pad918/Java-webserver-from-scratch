@@ -55,11 +55,8 @@ public class HttpListener extends Thread {
 	}
 
 	private void waitForHttpRequest() throws IOException, ParseException {
-		request = new HttpRequest();
-		request.readHttpHeader(binary_in);
-		//request.readHttpData(binary_in);
+		request = new HttpRequest(binary_in);
 		String conType = request.getHeaderValue("Connection");
 		keepAlive = conType.equals("keep-alive"); // Borde göras bättre
-
 	}
 }

@@ -2,6 +2,15 @@ package HTTP;
 
 import HTTP.CallableMethods;
 
+/*
+* 	Senaste planen:
+* 		En användare kan söka efter bild eller tag eller liknande.
+* 		Detta ger en csv fil med alla URI:er till bilderna.
+* 		Klient js hämtar bilderna från servern. (Ingen XMLHTTP... behöver användas)
+*
+*
+* */
+
 import java.io.FileNotFoundException;
 
 public class CloudHttpServer extends HttpServer{
@@ -33,20 +42,17 @@ public class CloudHttpServer extends HttpServer{
 		response.addHeader("Connection", "close");
 		Resource resource;
 		try {
-			String URL = request.getUrl();
+			String URI = request.getURI();
 			//Direct to auth (insert state mache here?)
-			if(URL.equals("/"))
-				URL = "/login.html";
-			resource = new Resource(URL);
+			if(URI.equals("/"))
+				URI = "/login.html";
+			resource = new Resource(URI);
 			response.setResource(resource);
 
 			// Kolla på kakan eller skapa kaka om den inte finns
 			Authentication auth = new Authentication(request);
 			if(!auth.isAuthenticated())
 				auth.createNewAuthId(response);
-
-
-
 
 			//Add resource specific headers (flytta till metod i responce?)
 			response.addHeader("Content-Length", Long.toString(resource.getFile().getSize()));
@@ -55,7 +61,6 @@ public class CloudHttpServer extends HttpServer{
 				response.addHeader("Content-Type", type);
 		}
 		catch (FileNotFoundException e){
-			//e.printStackTrace(); // Att ta bort
 			response.setHttpCode(404);
 		}
 		return response;

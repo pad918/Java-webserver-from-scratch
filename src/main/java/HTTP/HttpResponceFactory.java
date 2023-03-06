@@ -18,8 +18,8 @@ public class HttpResponceFactory {
 
 		Resource resource;
 		try {
-			String URL = request.getUrl();
-			resource = new Resource(URL);
+			String URI = request.getURI();
+			resource = new Resource(URI);
 			responce.setResource(resource);
 
 			//Add resource specific headers (flytta till metod i responce?)
