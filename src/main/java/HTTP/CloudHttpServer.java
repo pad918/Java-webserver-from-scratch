@@ -14,6 +14,13 @@ import HTTP.CallableMethods;
 import java.io.FileNotFoundException;
 
 public class CloudHttpServer extends HttpServer{
+
+	public CloudHttpServer(){
+		super();
+		//Add URI redirects/pointers, eg domain.com/ --> domain.com/index.html
+		Resource.addRedirect("/", "/index.html");
+	}
+
 	@Override
 	public HttpResponse getResponse(HttpRequest request) {
 		return switch (request.getType()) {
@@ -43,9 +50,7 @@ public class CloudHttpServer extends HttpServer{
 		Resource resource;
 		try {
 			String URI = request.getURI();
-			//Direct to auth (insert state mache here?)
-			if(URI.equals("/"))
-				URI = "/login.html";
+
 			resource = new Resource(URI);
 			response.setResource(resource);
 

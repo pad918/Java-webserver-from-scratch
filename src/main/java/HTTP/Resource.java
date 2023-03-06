@@ -21,14 +21,16 @@ public class Resource {
 
 	//This should be loaded from a file or a database!
 	private static HashMap<String, String> fileExtensionContentType;
+	private static HashMap<String, String> uriRedirects;
 
-	private String URL;
+	private String URI;
 	private FileReader file;
 
 
 	// Wow, en ny upptäckt!
 	static {
 		fileExtensionContentType = new HashMap<String, String>();
+		uriRedirects = new HashMap<String, String>();
 		// Som sagt, detta bör läsas från DB/fil.
 		fileExtensionContentType.put("png",  "image/png");
 		fileExtensionContentType.put("jpg",  "image/jpeg");
@@ -38,15 +40,21 @@ public class Resource {
 		fileExtensionContentType.put("pdf",  "document/pdf");
 	}
 
-	public Resource(String URL) throws FileNotFoundException {
-		this.URL = URL;
+	public static void addRedirect(String source, String destination){
+		uriRedirects.put(source, destination);
+	}
 
-		//Main website case (Gör en hashlist för detta?)
-		if(URL.equals("/"))
-			URL = "/index.html";
+	public Resource(String URI) throws FileNotFoundException {
+		this.URI = getRedirectedURI(URI);
 
-		String path = folderRootPath + URL;
+		String path = folderRootPath + this.URI;
 		loadFile(path);
+	}
+
+	private String getRedirectedURI(String source){
+		if (uriRedirects.containsKey(source))
+			return uriRedirects.get(source);
+		return source;
 	}
 
 	public FileReader getFile(){
@@ -54,7 +62,7 @@ public class Resource {
 	}
 
 	private String getFileExtension(){
-		String[] sep = URL.split("\\.");
+		String[] sep = URI.split("\\.");
 		if(sep.length==0)
 			return null;
 		return sep[sep.length-1];
