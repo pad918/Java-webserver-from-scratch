@@ -39,6 +39,12 @@ public class HttpResponse {
 		headers = new LinkedHashMap<String, String>();
 	}
 
+	public HttpResponse makeRedirect(String redirectURL){
+		setHttpCode(301);
+		addHeader("Location", redirectURL);
+		return this;
+	}
+
 	private void sendErrorCode(DataOutputStream out) throws IOException {
 		//Should add code name
 		String errorMessage = "HTTP/1.1 " + responceCode + "\r\n\r\n";

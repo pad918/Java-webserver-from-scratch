@@ -1,7 +1,5 @@
 package HTTP;
 
-import HTTP.CallableMethods;
-
 /*
 * 	Senaste planen:
 * 		En användare kan söka efter bild eller tag eller liknande.
@@ -23,6 +21,25 @@ public class CloudHttpServer extends HttpServer{
 
 	@Override
 	public HttpResponse getResponse(HttpRequest request) {
+
+		//If user is not signed in --> go to loginpage
+		Authentication auth = new Authentication(request);
+		HttpResponse response = new HttpResponse();
+		if(!auth.isAuthId()) {
+			auth.createNewAuthId(response);
+		}
+		//If not on allowed page, redirect
+		boolean noAuthRequiered = request.getURI().equals("/auth") || request.getURI().equals("/login.html");
+		if(!noAuthRequiered && !auth.isAuthenticated()){
+			try {
+				return response.makeRedirect("/login.html");
+			}
+			catch (Exception e){
+				response.setHttpCode(500);
+				return response;
+			}
+		}
+
 		return switch (request.getType()) {
 			case GET -> getGetResponse(request);
 			case POST -> getPostResponse(request);
@@ -34,12 +51,14 @@ public class CloudHttpServer extends HttpServer{
 	private HttpResponse getPostResponse(HttpRequest request){
 		CallableMethods.auth(request);
 		//request.requestedURL = "/index.html";
-		HttpResponse response = getGetResponse(request);
+		HttpResponse response = new HttpResponse();//getGetResponse(request);
+
 		// Run script if needed...
 		// 		Scripts can modify the database and the responce
 		//		Scripts can access the request (which containes the post data)
-		System.out.println("URL: " + request.requestedURL);
-		CallableMethods.try_run(request.requestedURL, request, response);
+
+		System.out.println("URI: " + request.getURI());
+		CallableMethods.try_run(request.getURI(), request, response);
 
 		return response;
 	}
@@ -53,11 +72,6 @@ public class CloudHttpServer extends HttpServer{
 
 			resource = new Resource(URI);
 			response.setResource(resource);
-
-			// Kolla på kakan eller skapa kaka om den inte finns
-			Authentication auth = new Authentication(request);
-			if(!auth.isAuthenticated())
-				auth.createNewAuthId(response);
 
 			//Add resource specific headers (flytta till metod i responce?)
 			response.addHeader("Content-Length", Long.toString(resource.getFile().getSize()));

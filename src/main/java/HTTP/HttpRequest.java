@@ -10,9 +10,9 @@ public class HttpRequest {
 	LinkedHashMap<String, String> headers;
 	LinkedHashMap<String, String> parameters;
 	HttpReqestType type;
-	String requestedURL;
-	String requestedURI;
-	String httpVersion;
+	private String requestedURL;
+	private String requestedURI;
+	private String httpVersion;
 	byte[] data;
 
 	public HttpRequest(BufferedInputStream in) throws IOException, ParseException {

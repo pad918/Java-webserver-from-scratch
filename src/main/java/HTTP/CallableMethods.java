@@ -100,9 +100,21 @@ public class CallableMethods {
 			Cookies cookies = new Cookies(request);
 			String auth_cookie = cookies.getCookie("auth");
 			boolean updateSuccess = Database.getInstance().add_cookie_authentication(username, auth_cookie);
+			try {
+				response.makeRedirect("/index.html");
+			}
+			catch (Exception e){
+				response.setHttpCode(500);
+			}
 		}
 		else{
 			System.out.println("Login FAILED( User: " + username + ", Pwd: " + password);
+			try {
+				response.makeRedirect("/login.html");
+			}
+			catch (Exception e){
+				response.setHttpCode(500);
+			}
 		}
 	}
 

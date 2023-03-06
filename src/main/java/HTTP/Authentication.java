@@ -1,5 +1,7 @@
 package HTTP;
 
+import database.Database;
+
 import java.util.Random;
 
 /*
@@ -9,10 +11,12 @@ import java.util.Random;
 public class Authentication {
 
 	String authId = null;
+	private String authenticatedUser;
 
 	public Authentication(HttpRequest request){
 		Cookies cookies = new Cookies(request);
 		authId = cookies.getCookie("auth");
+		authenticatedUser = Database.getInstance().getUsernameOfCookieAuthentication(authId);
 	}
 
 	void createNewAuthId(HttpResponse response){
@@ -23,8 +27,16 @@ public class Authentication {
 		response.addHeader("Set-Cookie", "auth=" + authId);
 	}
 
-	public boolean isAuthenticated(){
+	public boolean isAuthId(){
 		return authId!=null;
+	}
+
+	public boolean isAuthenticated(){
+		return authenticatedUser!=null;
+	}
+
+	public String getAuthenticatedUser(){
+		return authenticatedUser;
 	}
 
 	private String createRandomId(int len){

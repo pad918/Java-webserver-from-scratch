@@ -143,6 +143,35 @@ public class Database {
 		return user_id;
 	}
 
+	//Returns the name of the authenticated user
+	public String getUsernameOfCookieAuthentication(String authCookie){
+		String authenticatedUserName = null;
+		PreparedStatement stmt = null;
+		try {
+			stmt = conn.prepareStatement("SELECT username FROM (account_authentication join account on id=account_id)" +
+					"where cookie=(?);");
+			stmt.setString(1, authCookie);
+			ResultSet result = stmt.executeQuery();
+			if(result.next())
+				authenticatedUserName = result.getString(1);
+		}
+		catch (Exception e){
+			//failed
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			}
+			catch (Exception e){
+				e.printStackTrace();
+			}
+		}
+
+		return authenticatedUserName;
+	}
+
 	public boolean add_cookie_authentication(String username, String cookie){
 		int user_id = get_user_id(username);
 		if(user_id<0)
